@@ -6,11 +6,16 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Controller\ControllerResolver;
 use Symfony\Component\HttpKernel\HttpKernel;
-use Symfony\Component\HttpKernel\HttpKernelInterface;
+use Zend\ModuleManager\ModuleManager;
 
 abstract class AbstractKernel implements HttpKernelInterface
 {
     private $booted = false;
+
+    /**
+     * @var ModuleManager
+     */
+    private $moduleManager;
 
     /**
      * Handles a Request to convert it to a Response.
@@ -44,13 +49,28 @@ abstract class AbstractKernel implements HttpKernelInterface
             return;
         }
 
-//        // init bundles
-//        $this->initializeModules();
+        // init modules
+        $this->initializeModules();
 //
 //        // init container
 //        $this->initializeContainer();
 
         $this->booted = true;
+    }
+
+    public function getModules()
+    {
+        return $this->moduleManager->getModules();
+    }
+
+    /**
+     * @param $name
+     *
+     * @return mixed
+     */
+    public function getModule($name)
+    {
+        return $this->moduleManager->getModule($name);
     }
 
     /**
@@ -67,6 +87,11 @@ abstract class AbstractKernel implements HttpKernelInterface
         $httpKernel = new HttpKernel($eventDispatcher, $controllerResolver, $requestStack);
 
         return $httpKernel;
+    }
+
+    protected function initializeModules()
+    {
+        $this->moduleManager = new ModuleManager($this->registerModules());
     }
 
 }
