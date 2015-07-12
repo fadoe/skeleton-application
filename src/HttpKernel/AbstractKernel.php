@@ -5,7 +5,14 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Controller\ControllerResolver;
+use Symfony\Component\HttpKernel\EventListener\RouterListener;
 use Symfony\Component\HttpKernel\HttpKernel;
+use Symfony\Component\Routing\Matcher\UrlMatcher;
+use Symfony\Component\Routing\RequestContext;
+use Symfony\Component\Routing\Route;
+use Symfony\Component\Routing\RouteCollection;
+use Zend\ModuleManager\Listener\DefaultListenerAggregate;
+use Zend\ModuleManager\Listener\ListenerOptions;
 use Zend\ModuleManager\ModuleManager;
 
 abstract class AbstractKernel implements HttpKernelInterface
@@ -80,7 +87,17 @@ abstract class AbstractKernel implements HttpKernelInterface
      */
     protected function getHttpKernel()
     {
+        $routes = new RouteCollection();
+        $routes->add('home', new Route('/', array(
+            '_controller' => 'Application\Controller\IndexController::indexAction'
+        )));
+
+        $matcher = new UrlMatcher($routes, new RequestContext());
+
+        $routeListener = new RouterListener($matcher);
+
         $eventDispatcher = new EventDispatcher();
+        $eventDispatcher->addSubscriber($routeListener);
         $controllerResolver = new ControllerResolver();
         $requestStack = null;
 
@@ -91,7 +108,19 @@ abstract class AbstractKernel implements HttpKernelInterface
 
     protected function initializeModules()
     {
+        // Instantiate and configure the default listener aggregate
+        $listenerOptions = new ListenerOptions(array(
+            'module_paths' => array(
+                './module',
+            )
+        ));
+        $defaultListeners = new DefaultListenerAggregate($listenerOptions);
+
         $this->moduleManager = new ModuleManager($this->registerModules());
+
+        // Attach the default listener aggregate and load the modules
+        $this->moduleManager->getEventManager()->attachAggregate($defaultListeners);
+        $this->moduleManager->loadModules();
     }
 
 }

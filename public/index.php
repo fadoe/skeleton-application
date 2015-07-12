@@ -1,6 +1,6 @@
 <?php
 
-use Application\Kernel;
+use FaDoe\HttpKernel\Kernel;
 use Symfony\Component\HttpFoundation\Request;
 
 chdir(dirname(__DIR__));

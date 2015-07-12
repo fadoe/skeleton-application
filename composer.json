@@ -1,18 +1,20 @@
 {
     "name": "fadoe/skeleton-application",
-    "require": {
-        "symfony/http-kernel": "^2.7",
-        "zendframework/zend-modulemanager": "^2.5"
-    },
     "authors": [
         {
             "name": "Falk Doering",
-            "email": "falk.doering@marktjagd.de"
+            "email": "falk.doering@fadoe.de"
         }
     ],
     "autoload": {
         "psr-4": {
             "FaDoe\\": "src/"
         }
+    },
+    "require": {
+        "symfony/http-kernel": "^2.7",
+        "symfony/routing": "^2.7",
+        "zendframework/zend-modulemanager": "^2.5",
+        "zendframework/zend-loader": "^2.5"
     }
 }
